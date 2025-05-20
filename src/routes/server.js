@@ -2,11 +2,10 @@ const express = require('express');
 const { exec } = require('child_process');
 const router = express.Router();
 
-const execPromise = (cmd) => {
+// Execute system command
+const execCommand = (cmd) => {
     return new Promise((resolve, reject) => {
-        // Execute commands on the host system via SSH with proper environment
-        const sshCmd = `ssh localhost 'PATH=/usr/bin:/bin:/usr/sbin:/sbin ${cmd}'`;
-        exec(sshCmd, (error, stdout, stderr) => {
+        exec(cmd, (error, stdout, stderr) => {
             if (error) {
                 reject({ success: false, message: error.message });
                 return;
@@ -19,8 +18,8 @@ const execPromise = (cmd) => {
 // Dashboard route
 router.get('/', async (req, res) => {
     try {
-        const status = await execPromise('systemctl is-active palserver');
-        const logs = await execPromise('journalctl -u palserver --no-pager -n 10');
+        const status = await execCommand('systemctl is-active palserver');
+        const logs = await execCommand('journalctl -u palserver --no-pager -n 10');
         res.render('dashboard', { 
             serverStatus: status.message,
             logs: logs.message.split('\n')
@@ -37,7 +36,7 @@ router.get('/', async (req, res) => {
 // Get server status
 router.get('/server/status', async (req, res) => {
     try {
-        const result = await execPromise('systemctl --user is-active palserver');
+        const result = await execCommand('systemctl is-active palserver');
         res.json({ status: result.message });
     } catch (error) {
         res.json({ status: 'unknown', error: error.message });
@@ -48,7 +47,7 @@ router.get('/server/status', async (req, res) => {
 router.get('/server/logs', async (req, res) => {
     try {
         const lines = req.query.lines || 10;
-        const result = await execPromise(`journalctl -u palserver --no-pager -n ${lines}`);
+        const result = await execCommand(`journalctl -u palserver --no-pager -n ${lines}`);
         res.json({ success: true, logs: result.message.split('\n') });
     } catch (error) {
         res.json({ success: false, message: error.message });
@@ -58,7 +57,7 @@ router.get('/server/logs', async (req, res) => {
 // Start server
 router.post('/server/start', async (req, res) => {
     try {
-        await execPromise('systemctl start palserver');
+        await execCommand('systemctl start palserver');
         res.json({ success: true, message: 'Server started successfully' });
     } catch (error) {
         res.json({ success: false, message: error.message });
@@ -68,7 +67,7 @@ router.post('/server/start', async (req, res) => {
 // Restart server
 router.post('/server/restart', async (req, res) => {
     try {
-        await execPromise('systemctl restart palserver');
+        await execCommand('systemctl restart palserver');
         res.json({ success: true, message: 'Server restarted successfully' });
     } catch (error) {
         res.json({ success: false, message: error.message });
@@ -78,7 +77,7 @@ router.post('/server/restart', async (req, res) => {
 // Stop server
 router.post('/server/stop', async (req, res) => {
     try {
-        await execPromise('systemctl stop palserver');
+        await execCommand('systemctl stop palserver');
         res.json({ success: true, message: 'Server stopped successfully' });
     } catch (error) {
         res.json({ success: false, message: error.message });

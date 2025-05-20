@@ -1,7 +1,7 @@
 {
   "name": "palworldapi",
   "version": "1.0.0",
-  "description": "A FastAPI-based web service for managing a PalWorld dedicated server through systemd.",
+  "description": "A web service for managing a PalWorld dedicated server through systemd.",
   "main": "index.js",
   "scripts": {
     "start": "node src/app.js",

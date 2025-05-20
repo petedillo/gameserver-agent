@@ -13,7 +13,7 @@ A Node.js Express-based web service for managing a PalWorld dedicated server thr
 
 - Node.js 16 or higher
 - PalWorld dedicated server installed and configured as a systemd service
-- Sudo access for systemctl commands
+- User permissions to run systemctl commands for the palserver service
 
 ## Installation
 
@@ -28,19 +28,26 @@ A Node.js Express-based web service for managing a PalWorld dedicated server thr
    npm install
    ```
 
-3. Configure environment variables:
+3. Configure system permissions:
+   Create a new sudoers file for the application:
    ```bash
-   cp src/.env.example src/.env
-   # Edit src/.env with your preferred settings
+   sudo visudo -f /etc/sudoers.d/palserver
    ```
 
-4. Set up required permissions:
-   - Ensure the user running the application has sudo access to the following commands:
-     - systemctl start palserver
-     - systemctl stop palserver
-     - systemctl restart palserver
-     - systemctl is-active palserver
-     - journalctl -u palserver
+   Add the following to the sudoers file (replace `youruser` with your username):
+   ```
+   youruser ALL=(ALL) NOPASSWD: /bin/systemctl start palserver
+   youruser ALL=(ALL) NOPASSWD: /bin/systemctl stop palserver
+   youruser ALL=(ALL) NOPASSWD: /bin/systemctl restart palserver
+   youruser ALL=(ALL) NOPASSWD: /bin/systemctl is-active palserver
+   youruser ALL=(ALL) NOPASSWD: /bin/journalctl -u palserver
+   ```
+
+4. Configure environment variables:
+   ```bash
+   cp src/.env.example src/.env
+   # Edit src/.env if you want to change the port (default: 3000)
+   ```
 
 5. Run the application:
    ```bash
@@ -61,3 +68,11 @@ For production:
 ```bash
 npm start
 ```
+
+## Security Considerations
+
+- Run the application as a non-root user
+- Keep sudo permissions limited to only the required commands
+- Consider implementing additional authentication for the web interface
+- Monitor system logs for unauthorized access attempts
+- Consider running behind a reverse proxy for HTTPS support
