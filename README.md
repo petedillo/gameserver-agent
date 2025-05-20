@@ -34,19 +34,21 @@ A Node.js Express-based web service for managing a PalWorld dedicated server thr
    # Edit src/.env with your preferred settings
    ```
 
-4. Set up sudo permissions:
+4. Set up required permissions:
+   - Ensure the user running the application has sudo access to the following commands:
+     - systemctl start palserver
+     - systemctl stop palserver
+     - systemctl restart palserver
+     - systemctl is-active palserver
+     - journalctl -u palserver
+
+5. Run the application:
    ```bash
-   sudo cp sudoers-palworld /etc/sudoers.d/palworld
-   sudo chmod 440 /etc/sudoers.d/palworld
+   # Start the application
+   npm start
    ```
 
-5. Install and start the service:
-   ```bash
-   sudo cp palworld-manager.service /etc/systemd/system/
-   sudo systemctl daemon-reload
-   sudo systemctl enable palworld-manager
-   sudo systemctl start palworld-manager
-   ```
+   The server will be available at http://localhost:3000 (or your configured port)
 
 ## Development
 
