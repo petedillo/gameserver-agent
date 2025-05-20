@@ -4,9 +4,9 @@ const router = express.Router();
 
 const execPromise = (cmd) => {
     return new Promise((resolve, reject) => {
-        // Use full path and specify user
-        const fullCmd = `XDG_RUNTIME_DIR=/run/user/$(id -u pete) /usr/bin/${cmd}`;
-        exec(fullCmd, { env: { DBUS_SESSION_BUS_ADDRESS: 'unix:path=/run/user/1000/bus' } }, (error, stdout, stderr) => {
+        // Execute commands on the host system via SSH
+        const sshCmd = `ssh localhost '${cmd}'`;
+        exec(sshCmd, (error, stdout, stderr) => {
             if (error) {
                 reject({ success: false, message: error.message });
                 return;
@@ -19,8 +19,8 @@ const execPromise = (cmd) => {
 // Dashboard route
 router.get('/', async (req, res) => {
     try {
-        const status = await execPromise('systemctl --user is-active palserver');
-        const logs = await execPromise('journalctl --user-unit palserver --no-pager -n 10');
+        const status = await execPromise('systemctl is-active palserver');
+        const logs = await execPromise('journalctl -u palserver --no-pager -n 10');
         res.render('dashboard', { 
             serverStatus: status.message,
             logs: logs.message.split('\n')

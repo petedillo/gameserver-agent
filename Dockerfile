@@ -3,7 +3,7 @@ FROM node:20-slim
 
 # Install required packages
 RUN apt-get update && \
-    apt-get install -y systemd dbus && \
+    apt-get install -y openssh-client && \
     rm -rf /var/lib/apt/lists/*
 
 # Create app directory
