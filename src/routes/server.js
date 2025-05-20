@@ -4,7 +4,9 @@ const router = express.Router();
 
 const execPromise = (cmd) => {
     return new Promise((resolve, reject) => {
-        exec(cmd, (error, stdout, stderr) => {
+        // Use full path and specify user
+        const fullCmd = `XDG_RUNTIME_DIR=/run/user/$(id -u pete) /usr/bin/${cmd}`;
+        exec(fullCmd, { env: { DBUS_SESSION_BUS_ADDRESS: 'unix:path=/run/user/1000/bus' } }, (error, stdout, stderr) => {
             if (error) {
                 reject({ success: false, message: error.message });
                 return;
@@ -17,8 +19,8 @@ const execPromise = (cmd) => {
 // Dashboard route
 router.get('/', async (req, res) => {
     try {
-        const status = await execPromise('systemctl is-active palserver');
-        const logs = await execPromise('journalctl -u palserver --no-pager -n 10');
+        const status = await execPromise('systemctl --user is-active palserver');
+        const logs = await execPromise('journalctl --user-unit palserver --no-pager -n 10');
         res.render('dashboard', { 
             serverStatus: status.message,
             logs: logs.message.split('\n')
@@ -35,7 +37,7 @@ router.get('/', async (req, res) => {
 // Get server status
 router.get('/server/status', async (req, res) => {
     try {
-        const result = await execPromise('systemctl is-active palserver');
+        const result = await execPromise('systemctl --user is-active palserver');
         res.json({ status: result.message });
     } catch (error) {
         res.json({ status: 'unknown', error: error.message });
@@ -56,7 +58,7 @@ router.get('/server/logs', async (req, res) => {
 // Start server
 router.post('/server/start', async (req, res) => {
     try {
-        await execPromise('sudo systemctl start palserver');
+        await execPromise('systemctl start palserver');
         res.json({ success: true, message: 'Server started successfully' });
     } catch (error) {
         res.json({ success: false, message: error.message });
@@ -66,7 +68,7 @@ router.post('/server/start', async (req, res) => {
 // Restart server
 router.post('/server/restart', async (req, res) => {
     try {
-        await execPromise('sudo systemctl restart palserver');
+        await execPromise('systemctl restart palserver');
         res.json({ success: true, message: 'Server restarted successfully' });
     } catch (error) {
         res.json({ success: false, message: error.message });
@@ -76,7 +78,7 @@ router.post('/server/restart', async (req, res) => {
 // Stop server
 router.post('/server/stop', async (req, res) => {
     try {
-        await execPromise('sudo systemctl stop palserver');
+        await execPromise('systemctl stop palserver');
         res.json({ success: true, message: 'Server stopped successfully' });
     } catch (error) {
         res.json({ success: false, message: error.message });
