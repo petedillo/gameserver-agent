@@ -4,8 +4,8 @@ const router = express.Router();
 
 const execPromise = (cmd) => {
     return new Promise((resolve, reject) => {
-        // Execute commands on the host system via SSH with full paths
-        const sshCmd = `ssh localhost '/usr/bin/${cmd}'`;
+        // Execute commands on the host system via SSH with proper environment
+        const sshCmd = `ssh localhost 'PATH=/usr/bin:/bin:/usr/sbin:/sbin ${cmd}'`;
         exec(sshCmd, (error, stdout, stderr) => {
             if (error) {
                 reject({ success: false, message: error.message });
