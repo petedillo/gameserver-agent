@@ -50,6 +50,27 @@ A Node.js Express-based web service for managing a PalWorld dedicated server thr
 
    The server will be available at http://localhost:3000 (or your configured port)
 
+## Docker
+
+You can run this application using Docker:
+
+```bash
+# Build the image
+docker build -t diolab:5000/palserver-api:latest .
+
+# Run the container
+docker run -d \
+  --name palserver-manager \
+  -p 3000:3000 \
+  --restart unless-stopped \
+  diolab:5000/palserver-api:latest
+
+# Push to registry
+docker push diolab:5000/palserver-api:latest
+```
+
+Note: When running in Docker, ensure the container has the necessary permissions to execute systemctl commands on the host system.
+
 ## Development
 
 Run the application in development mode:
