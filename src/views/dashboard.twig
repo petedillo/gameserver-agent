@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PalWorld Server Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="text-center">PalWorld Server Manager</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="server-status mb-4">
+                            <h4>Server Status: 
+                                <span id="status-badge" class="badge {% if serverStatus == 'active' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ serverStatus }}
+                                </span>
+                            </h4>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button onclick="controlServer('start')" class="btn btn-success">Start Server</button>
+                            <button onclick="controlServer('restart')" class="btn btn-warning">Restart Server</button>
+                            <button onclick="controlServer('stop')" class="btn btn-danger">Stop Server</button>
+                        </div>
+
+                        <div id="alert" class="alert mt-3" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function controlServer(action) {
+            const button = event.target;
+            const originalText = button.innerText;
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+
+            try {
+                const response = await fetch(`/server/${action}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                showAlert(data.success ? 'success' : 'danger', data.message);
+                updateServerStatus();
+            } catch (error) {
+                showAlert('danger', 'Failed to control server');
+            } finally {
+                button.disabled = false;
+                button.innerText = originalText;
+            }
+        }
+
+        async function updateServerStatus() {
+            try {
+                const response = await fetch('/server/status');
+                const data = await response.json();
+                const badge = document.getElementById('status-badge');
+                badge.textContent = data.status;
+                badge.className = `badge ${data.status === 'active' ? 'bg-success' : 'bg-danger'}`;
+            } catch (error) {
+                console.error('Failed to update status:', error);
+            }
+        }
+
+        function showAlert(type, message) {
+            const alert = document.getElementById('alert');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alert.style.display = 'block';
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        // Auto-refresh status every 10 seconds
+        setInterval(updateServerStatus, 10000);
+    </script>
+</body>
+</html>
