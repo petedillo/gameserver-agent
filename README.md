@@ -1,78 +1,107 @@
-# PalWorld Server Manager
+# GameServer Agent
 
-A Node.js Express-based web service for managing a PalWorld dedicated server through systemd. This application provides a web interface to monitor and control your PalWorld dedicated server.
+A FastAPI-based service for managing game servers. This implementation provides a RESTful API to control Minecraft and Palworld servers through systemd services.
 
 ## Features
 
-- 🎮 Real-time server status monitoring
-- 🔄 Start/Stop/Restart server controls
-- 📋 Server logs viewer with auto-refresh
-- 🚀 Systemd service integration
+- **Server Management**: Start, stop, restart, and check status of game servers
+- **Systemd Integration**: Manages servers through systemd services
+- **Docker Support**: Runs in a containerized environment
+- **API Documentation**: Auto-generated OpenAPI/Swagger documentation
+- **Test Coverage**: Comprehensive test suite for all endpoints
 
-## Prerequisites
+## API Endpoints
 
-- Node.js 16 or higher
-- PalWorld dedicated server installed and configured as a systemd service
-- User permissions to run systemctl commands for the palserver service
+### Minecraft Server
+- `POST /minecraft/start` - Start the Minecraft server
+- `POST /minecraft/stop` - Stop the Minecraft server
+- `POST /minecraft/restart` - Restart the Minecraft server
+- `GET /minecraft/status` - Get server status
 
-## Installation
+### Palworld Server
+- `POST /palworld/start` - Start the Palworld server
+- `POST /palworld/stop` - Stop the Palworld server
+- `POST /palworld/restart` - Restart the Palworld server
+- `GET /palworld/status` - Get server status
 
-1. Clone the repository:
+## Project Structure
+
+- `src/`: Contains the main application code.
+  - `api/`: API route definitions for Minecraft and Palworld.
+  - `core/`: Core logic for managing servers.
+  - `models/`: Data models for server management.
+  - `schemas/`: Pydantic schemas for request and response validation.
+  - `config.py`: Configuration settings for the application.
+  - `main.py`: Entry point for the FastAPI application.
+  - `utils.py`: Utility functions used throughout the application.
+  
+- `tests/`: Contains unit tests for the application.
+- `.env.example`: Example environment variables file.
+- `requirements.txt`: List of dependencies for the project.
+- `Dockerfile`: Docker configuration for containerization.
+
+## Setup Instructions
+
+### Local Development
+1. Clone the repository
+2. Create and activate a virtual environment:
    ```bash
-   git clone https://github.com/petedillo/palserver-api.git
-   cd palserver-api
+   python -m venv venv
+   source venv/bin/activate
    ```
-
-2. Install dependencies:
+3. Install dependencies:
    ```bash
-   npm install
+   pip install -r requirements.txt
    ```
-
-3. Configure system permissions:
-   Create a new sudoers file for the application:
+4. Run the development server:
    ```bash
-   sudo visudo -f /etc/sudoers.d/palserver
+   uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
    ```
 
-   Add the following to the sudoers file (replace `youruser` with your username):
-   ```
-   youruser ALL=(ALL) NOPASSWD: /bin/systemctl start palserver
-   youruser ALL=(ALL) NOPASSWD: /bin/systemctl stop palserver
-   youruser ALL=(ALL) NOPASSWD: /bin/systemctl restart palserver
-   youruser ALL=(ALL) NOPASSWD: /bin/systemctl is-active palserver
-   youruser ALL=(ALL) NOPASSWD: /bin/journalctl -u palserver
-   ```
-
-4. Configure environment variables:
+### Docker Deployment
+1. Build the Docker image:
    ```bash
-   cp src/.env.example src/.env
-   # Edit src/.env if you want to change the port (default: 3000)
+   docker build -t gameserver-agent .
    ```
-
-5. Run the application:
+2. Run the container:
    ```bash
-   # Start the application
-   npm start
+   docker run -d -p 8000:8000 --name gameserver-api gameserver-agent
    ```
 
-   The server will be available at http://localhost:3000 (or your configured port)
+### Systemd Configuration
+The API requires proper systemd service configurations:
 
-## Development
+1. Minecraft Server:
+   - Uses `docker-compose@minecraft.service`
+   - Managed through Docker Compose
 
-Run the application in development mode:
+2. Palworld Server:
+   - Uses `palworld.service`
+   - Direct systemd service management
+
+### Testing
+Run the test suite:
 ```bash
-npm run dev
+pytest tests/
 ```
 
-For production:
-```bash
-npm start
-```
+### API Documentation
+Once running, access the API documentation at:
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
 
-## Security Considerations
+## API Endpoints
 
-- Run the application as a non-root user
-- Keep sudo permissions limited to only the required commands
-- Consider implementing additional authentication for the web interface
-- Monitor system logs for unauthorized access attempts
-- Consider running behind a reverse proxy for HTTPS support
+- `POST /minecraft/start`: Start the Minecraft server.
+- `POST /minecraft/stop`: Stop the Minecraft server.
+- `POST /minecraft/restart`: Restart the Minecraft server.
+- `GET /minecraft/status`: Check the status of the Minecraft server.
+
+- `POST /palworld/start`: Start the Palworld server.
+- `POST /palworld/stop`: Stop the Palworld server.
+- `POST /palworld/restart`: Restart the Palworld server.
+- `GET /palworld/status`: Check the status of the Palworld server.
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for details.
