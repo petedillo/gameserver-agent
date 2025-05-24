@@ -90,13 +90,6 @@ Once running, access the API documentation at:
 - Swagger UI: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
 
-### Security Note
-The API requires proper sudoers configuration to manage systemd services. See the `sudoers.d/gameserver-agent` configuration for details.
-5. Run the application:
-   ```
-   uvicorn src.main:app --reload
-   ```
-
 ## API Endpoints
 
 - `POST /minecraft/start`: Start the Minecraft server.

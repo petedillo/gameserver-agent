@@ -27,4 +27,4 @@ async def restart_palworld():
 @router.get("/status")
 async def status_palworld():
     result = check_status("palworld")
-    return {"status": result.stdout.decode() if result.stdout else result.stderr.decode()}
+    return {"status": result.stdout if result.stdout else result.stderr}
