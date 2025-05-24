@@ -42,13 +42,56 @@ A FastAPI-based service for managing game servers. This implementation provides 
 
 ## Setup Instructions
 
-1. Clone the repository.
-2. Create a virtual environment and activate it.
-3. Install the required dependencies:
+### Local Development
+1. Clone the repository
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
    ```
+3. Install dependencies:
+   ```bash
    pip install -r requirements.txt
    ```
-4. Configure environment variables in a `.env` file based on `.env.example`.
+4. Run the development server:
+   ```bash
+   uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+   ```
+
+### Docker Deployment
+1. Build the Docker image:
+   ```bash
+   docker build -t gameserver-agent .
+   ```
+2. Run the container:
+   ```bash
+   docker run -d -p 8000:8000 --name gameserver-api gameserver-agent
+   ```
+
+### Systemd Configuration
+The API requires proper systemd service configurations:
+
+1. Minecraft Server:
+   - Uses `docker-compose@minecraft.service`
+   - Managed through Docker Compose
+
+2. Palworld Server:
+   - Uses `palworld.service`
+   - Direct systemd service management
+
+### Testing
+Run the test suite:
+```bash
+pytest tests/
+```
+
+### API Documentation
+Once running, access the API documentation at:
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+
+### Security Note
+The API requires proper sudoers configuration to manage systemd services. See the `sudoers.d/gameserver-agent` configuration for details.
 5. Run the application:
    ```
    uvicorn src.main:app --reload
