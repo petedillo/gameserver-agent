@@ -27,4 +27,6 @@ async def restart_minecraft():
 @router.get("/status")
 async def status_minecraft():
     result = check_status("minecraft")
-    return {"status": result.stdout if result.stdout else result.stderr}
+    if "error" in result:
+        raise HTTPException(status_code=500, detail=result["error"])
+    return result
