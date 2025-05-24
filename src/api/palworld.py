@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from src.utils import start_server, stop_server, restart_server, check_status
+from src.systemd_service import start_server, stop_server, restart_server, check_status
 
 router = APIRouter()
 
