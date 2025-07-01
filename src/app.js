@@ -12,16 +12,26 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // CORS configuration
+const allowedOrigins = [
+  'https://gameserver.petedillo.com',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000'
+];
+
 const corsOptions = {
-  origin: 'https://gameserver.petedillo.com',
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
   optionsSuccessStatus: 200
 };
 
-// Handle preflight requests
-app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
 
 // Swagger definition
