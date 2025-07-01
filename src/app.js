@@ -1,6 +1,7 @@
 require('dotenv').config();
 const fs = require('fs');
 const express = require('express');
+const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const apiRoutes = require('./routes/api');
@@ -9,6 +10,19 @@ const PalworldService = require('./services/palworld');
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+// CORS configuration
+const corsOptions = {
+  origin: 'https://gameserver.petedillo.com',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
+// Handle preflight requests
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
 
 // Swagger definition
 const swaggerOptions = {
@@ -21,11 +35,21 @@ const swaggerOptions = {
     },
     servers: [
       {
+        url: '/',
+        description: 'Current server',
+      },
+      {
+        url: 'https://api.gameserver.petedillo.com',
+        description: 'Production server',
+      },
+      {
         url: `http://localhost:${port}`,
+        description: 'Local development',
       },
     ],
   },
-  apis: ['./src/routes/*.js'], // files containing annotations as above
+  apis: ['./src/routes/*.js'],
+  explorer: true,
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
