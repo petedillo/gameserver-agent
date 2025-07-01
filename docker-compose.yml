@@ -1,0 +1,14 @@
+services:
+  gameserver-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "0420:3000"
+    # Mount the local .env file for environment variables
+    env_file:
+      - .env
+    # Mount the local ssh directory into the container
+    volumes:
+      - ./ssh:/app/ssh:ro # ro for read-only, as the key should not be changed by the container
+    container_name: gameserver-agent
