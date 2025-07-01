@@ -7,7 +7,7 @@ singleImageBuild(
     sshCreds: 'jenkins-petedillo',
     composePath: '/home/pete/services/gameserver-agent/compose.yaml',
     imageName: 'gameserver-agent',
-    branch: 'dev',
+    branch: 'main',
     buildArgs: [],
     contextPath: '.',
     platform: 'linux/amd64',
